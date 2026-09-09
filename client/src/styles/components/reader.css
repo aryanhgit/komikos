@@ -1,0 +1,203 @@
+/* MangaReader Styles */
+
+.reader-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background-color: #000000;
+  color: var(--text-primary);
+  display: flex;
+  flex-direction: column;
+}
+
+.reader-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 24px;
+  background: var(--surface-glass);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  z-index: 20;
+}
+
+.reader-topbar.sticky {
+  position: sticky;
+  top: 0;
+}
+
+.reader-title-info {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.reader-page-counter {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.08);
+  padding: 4px 12px;
+  border-radius: var(--radius-pill);
+}
+
+.reader-content {
+  flex: 1;
+  overflow-y: auto;
+  position: relative;
+  scroll-behavior: smooth;
+}
+
+/* Settings Popover */
+.reader-settings-panel {
+  position: absolute;
+  top: 60px;
+  right: 20px;
+  z-index: 100;
+  width: 320px;
+  background: var(--surface-glass-elevated);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.settings-row label {
+  color: var(--text-secondary);
+}
+
+/* Apple Segmented Control / Toggle Group */
+.segmented-control {
+  display: inline-flex;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 3px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+}
+
+.segmented-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 500;
+  padding: 4px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 160ms ease;
+}
+
+.segmented-btn.active {
+  background: var(--surface-hover);
+  color: var(--text-primary);
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Range Input styling */
+.reader-range-input {
+  width: 110px;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+/* Reader Page View Layouts */
+.reader-strip-view {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px 0;
+}
+
+.reader-page-img {
+  display: block;
+  max-width: 100%;
+  object-fit: contain;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+.reader-page-img.fit-width {
+  width: 100%;
+  max-width: 900px;
+  height: auto;
+}
+
+.reader-page-img.fit-height {
+  height: calc(100vh - 100px);
+  width: auto;
+}
+
+.reader-paged-view {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 20px;
+}
+
+.reader-nav-btn {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-pill);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 160ms ease;
+  flex-shrink: 0;
+}
+
+.reader-nav-btn:hover {
+  background: var(--surface-hover);
+  border-color: var(--border-strong);
+  transform: scale(1.05);
+}
+
+.reader-nav-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.back-to-top-btn {
+  position: fixed;
+  bottom: 32px;
+  right: 32px;
+  z-index: 50;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-pill);
+  background: var(--text-primary);
+  color: #000000;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  transition: transform 180ms var(--ease-apple);
+}
+
+.back-to-top-btn:hover {
+  transform: translateY(-3px) scale(1.05);
+}

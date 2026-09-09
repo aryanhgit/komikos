@@ -1,0 +1,124 @@
+/* SearchManga Styles */
+
+.search-section {
+  margin-bottom: 32px;
+}
+
+.search-shell {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.search-form {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+  max-width: 600px;
+}
+
+.search-field {
+  position: relative;
+  flex: 1;
+}
+
+.search-field svg {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  stroke: var(--text-secondary);
+  pointer-events: none;
+  transition: stroke 160ms ease;
+}
+
+.search-input {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 12px 16px 12px 46px;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+  outline: none;
+  transition: all 180ms var(--ease-apple);
+}
+
+.search-input::placeholder {
+  color: var(--text-secondary);
+  font-weight: 400;
+}
+
+.search-input:focus {
+  background: var(--surface-hover);
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 4px var(--accent-soft);
+}
+
+.search-field:focus-within svg {
+  stroke: var(--accent);
+}
+
+/* Results Section */
+.search-results-panel {
+  max-width: 600px;
+  margin: 16px auto 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+}
+
+.results-group-title {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-tertiary);
+  margin: 0 0 10px 4px;
+}
+
+.results-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.results-list:last-child {
+  margin-bottom: 0;
+}
+
+.result-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  transition: background 160ms ease;
+}
+
+.result-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.result-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.result-action-btn {
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+}
