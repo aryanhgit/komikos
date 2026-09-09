@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { ArrowUp, Settings, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowUp, Settings, ChevronLeft, ChevronRight, X } from "lucide-react";
 import { getChapterPages } from "../utils/api";
 import { loadPdfPages } from "../utils/pdfLoader";
 
@@ -26,103 +26,218 @@ export default function MangaReader({ mangaId, chapter, onClose }) {
     let active = true;
     setLoading(true);
     setPageIndex(0);
+
     const source =
       chapter.read && chapter.download_url
         ? loadPdfPages(chapter.download_url)
         : getChapterPages(mangaId, chapter.id);
+
     source
       .then((p) => active && setPages(p))
       .catch((e) => active && setError(e.message))
       .finally(() => active && setLoading(false));
-    return () => { active = false; };
-  }, [mangaId, chapter.id, chapter.download_url]);
+
+    return () => {
+      active = false;
+    };
+  }, [mangaId, chapter.id, chapter.download_url, chapter.read]);
 
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
-    function onScroll() { setShowBackToTop(el.scrollTop > 400); }
+    function onScroll() {
+      setShowBackToTop(el.scrollTop > 400);
+    }
     el.addEventListener("scroll", onScroll);
     return () => el.removeEventListener("scroll", onScroll);
   }, [settings.style]);
 
-  function update(key, value) { setSettings((s) => ({ ...s, [key]: value })); }
-  function scrollToTop() { scrollRef.current?.scrollTo({ top: 0, behavior: "smooth" }); }
-  function goNext() { setPageIndex((i) => Math.min(i + (settings.style === "double" ? 2 : 1), pages.length - 1)); }
-  function goPrev() { setPageIndex((i) => Math.max(i - (settings.style === "double" ? 2 : 1), 0)); }
+  function update(key, value) {
+    setSettings((s) => ({ ...s, [key]: value }));
+  }
 
-  const fitClass = settings.fit === "width" ? "w-full h-auto" : "h-full w-auto mx-auto";
+  function scrollToTop() {
+    scrollRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function goNext() {
+    setPageIndex((i) =>
+      Math.min(i + (settings.style === "double" ? 2 : 1), pages.length - 1)
+    );
+  }
+
+  function goPrev() {
+    setPageIndex((i) =>
+      Math.max(i - (settings.style === "double" ? 2 : 1), 0)
+    );
+  }
+
+  const fitClass = settings.fit === "width" ? "fit-width" : "fit-height";
 
   return (
-    <div className="fixed inset-0 bg-black text-neutral-100 flex flex-col">
-      <div className={`flex items-center justify-between px-4 py-3 bg-neutral-950 border-b border-neutral-800 ${settings.topNav === "sticky" ? "sticky top-0 z-20" : ""}`}>
-        <button onClick={onClose} className="text-sm text-neutral-400">← Close</button>
-        <span className="text-sm text-neutral-400">
-          {settings.style !== "strip" && pages.length > 0 && `${pageIndex + 1} / ${pages.length}`}
-        </span>
-        <button onClick={() => setSettingsOpen((o) => !o)} className="text-neutral-400">
-          <Settings size={18} />
+    <div className="reader-overlay">
+      <div className={`reader-topbar ${settings.topNav === "sticky" ? "sticky" : ""}`}>
+        <button onClick={onClose} className="btn btn-secondary" style={{ padding: "6px 12px", fontSize: "13px" }}>
+          ← Close
         </button>
+
+        <div className="reader-title-info">
+          <span>{chapter.title}</span>
+        </div>
+
+        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+          {settings.style !== "strip" && pages.length > 0 && (
+            <span className="reader-page-counter">
+              {pageIndex + 1} / {pages.length}
+            </span>
+          )}
+          <button
+            onClick={() => setSettingsOpen((o) => !o)}
+            className="btn-icon"
+            title="Reader Settings"
+          >
+            {settingsOpen ? <X size={18} /> : <Settings size={18} />}
+          </button>
+        </div>
       </div>
 
       {settingsOpen && (
-        <div className="absolute right-4 top-16 z-30 w-72 rounded-xl bg-neutral-900 border border-neutral-800 p-4 space-y-4 text-sm">
-          <Row label="Top nav">
-            <Toggle options={[["simple", "Simple"], ["sticky", "Sticky"]]} value={settings.topNav} onChange={(v) => update("topNav", v)} />
+        <div className="reader-settings-panel">
+          <Row label="Top Navigation">
+            <Toggle
+              options={[
+                ["simple", "Simple"],
+                ["sticky", "Sticky"],
+              ]}
+              value={settings.topNav}
+              onChange={(v) => update("topNav", v)}
+            />
           </Row>
-          <Row label="Gap between images">
-            <input type="range" min="0" max="32" value={settings.gap} onChange={(e) => update("gap", Number(e.target.value))} className="w-28" />
+
+          <Row label="Page Gap">
+            <input
+              type="range"
+              min="0"
+              max="32"
+              value={settings.gap}
+              onChange={(e) => update("gap", Number(e.target.value))}
+              className="reader-range-input"
+            />
           </Row>
-          <Row label="Back to top button">
-            <input type="checkbox" checked={settings.backToTop} onChange={(e) => update("backToTop", e.target.checked)} />
+
+          <Row label="Back to Top Button">
+            <input
+              type="checkbox"
+              checked={settings.backToTop}
+              onChange={(e) => update("backToTop", e.target.checked)}
+              style={{ accentColor: "var(--accent)", cursor: "pointer" }}
+            />
           </Row>
-          <Row label="Reading direction">
-            <Toggle options={[["ltr", "L → R"], ["rtl", "R → L"]]} value={settings.direction} onChange={(v) => update("direction", v)} />
+
+          <Row label="Direction">
+            <Toggle
+              options={[
+                ["ltr", "L → R"],
+                ["rtl", "R → L"],
+              ]}
+              value={settings.direction}
+              onChange={(v) => update("direction", v)}
+            />
           </Row>
-          <Row label="Reading style">
-            <Toggle options={[["strip", "Strip"], ["single", "Single"], ["double", "Double"]]} value={settings.style} onChange={(v) => { update("style", v); setPageIndex(0); }} />
+
+          <Row label="Reading Mode">
+            <Toggle
+              options={[
+                ["strip", "Strip"],
+                ["single", "Single"],
+                ["double", "Double"],
+              ]}
+              value={settings.style}
+              onChange={(v) => {
+                update("style", v);
+                setPageIndex(0);
+              }}
+            />
           </Row>
-          <Row label="Image fit">
-            <Toggle options={[["width", "Width"], ["height", "Height"]]} value={settings.fit} onChange={(v) => update("fit", v)} />
+
+          <Row label="Image Fit">
+            <Toggle
+              options={[
+                ["width", "Width"],
+                ["height", "Height"],
+              ]}
+              value={settings.fit}
+              onChange={(v) => update("fit", v)}
+            />
           </Row>
         </div>
       )}
 
-      <div ref={scrollRef} className="flex-1 overflow-y-auto relative">
-        {loading && <p className="text-neutral-400 text-sm p-6">Loading pages…</p>}
-        {error && <p className="text-red-400 text-sm p-6">{error}</p>}
+      <div ref={scrollRef} className="reader-content">
+        {loading && <p className="status-text">Loading chapter pages…</p>}
+        {error && <div className="error-banner" style={{ margin: "24px auto", maxWidth: "600px" }}>{error}</div>}
 
         {!loading && !error && settings.style === "strip" && (
-          <div className="flex flex-col items-center" style={{ gap: settings.gap }}>
+          <div className="reader-strip-view" style={{ gap: `${settings.gap}px` }}>
             {pages.map((url, i) => (
-              <img key={i} src={url} alt={`Page ${i + 1}`} className={fitClass} />
+              <img
+                key={i}
+                src={url}
+                alt={`Page ${i + 1}`}
+                className={`reader-page-img ${fitClass}`}
+                loading="lazy"
+              />
             ))}
           </div>
         )}
 
         {!loading && !error && settings.style !== "strip" && pages.length > 0 && (
-          <div className="h-full flex items-center justify-center">
-            <button onClick={settings.direction === "ltr" ? goPrev : goNext} className="p-2 text-neutral-500">
-              <ChevronLeft />
+          <div className="reader-paged-view">
+            <button
+              onClick={settings.direction === "ltr" ? goPrev : goNext}
+              disabled={pageIndex === 0}
+              className="reader-nav-btn"
+            >
+              <ChevronLeft size={22} />
             </button>
-            <div className="flex" style={{ gap: settings.gap }}>
+
+            <div style={{ display: "flex", gap: `${settings.gap}px`, alignItems: "center" }}>
               {settings.style === "single" ? (
-                <img src={pages[pageIndex]} alt={`Page ${pageIndex + 1}`} className={fitClass} />
+                <img
+                  src={pages[pageIndex]}
+                  alt={`Page ${pageIndex + 1}`}
+                  className={`reader-page-img ${fitClass}`}
+                />
               ) : (
                 (settings.direction === "ltr"
                   ? [pages[pageIndex], pages[pageIndex + 1]]
                   : [pages[pageIndex + 1], pages[pageIndex]]
-                ).filter(Boolean).map((url, i) => <img key={i} src={url} alt="" className={fitClass} />)
+                )
+                  .filter(Boolean)
+                  .map((url, i) => (
+                    <img
+                      key={i}
+                      src={url}
+                      alt={`Page`}
+                      className={`reader-page-img ${fitClass}`}
+                    />
+                  ))
               )}
             </div>
-            <button onClick={settings.direction === "ltr" ? goNext : goPrev} className="p-2 text-neutral-500">
-              <ChevronRight />
+
+            <button
+              onClick={settings.direction === "ltr" ? goNext : goPrev}
+              disabled={pageIndex >= pages.length - 1}
+              className="reader-nav-btn"
+            >
+              <ChevronRight size={22} />
             </button>
           </div>
         )}
 
         {settings.backToTop && showBackToTop && settings.style === "strip" && (
-          <button onClick={scrollToTop} className="fixed bottom-6 right-6 rounded-full bg-neutral-100 text-black p-3 shadow-lg z-20">
-            <ArrowUp size={18} />
+          <button onClick={scrollToTop} className="back-to-top-btn" title="Back to top">
+            <ArrowUp size={20} />
           </button>
         )}
       </div>
@@ -132,8 +247,8 @@ export default function MangaReader({ mangaId, chapter, onClose }) {
 
 function Row({ label, children }) {
   return (
-    <div className="flex items-center justify-between">
-      <span>{label}</span>
+    <div className="settings-row">
+      <label>{label}</label>
       {children}
     </div>
   );
@@ -141,12 +256,12 @@ function Row({ label, children }) {
 
 function Toggle({ options, value, onChange }) {
   return (
-    <div className="flex gap-1">
+    <div className="segmented-control">
       {options.map(([v, text]) => (
         <button
           key={v}
           onClick={() => onChange(v)}
-          className={`px-2 py-1 rounded-md text-xs ${value === v ? "bg-neutral-100 text-black" : "bg-neutral-800 text-neutral-300"}`}
+          className={`segmented-btn ${value === v ? "active" : ""}`}
         >
           {text}
         </button>

@@ -1,18 +1,18 @@
 import { useState } from "react";
 import { searchManga, addManga } from "../utils/api";
 
-export default function SearchManga({ onAdded, onSelectTracked }) {
-  const [query, setQuery] = useState("");
+export default function SearchManga({ value, onChange, onAdded, onSelectTracked }) {
   const [results, setResults] = useState(null);
   const [busyTitle, setBusyTitle] = useState(null);
   const [error, setError] = useState(null);
 
   async function submit(e) {
     e.preventDefault();
-    if (!query.trim()) return;
+    const q = value?.trim();
+    if (!q) return;
     setError(null);
     try {
-      setResults(await searchManga(query.trim()));
+      setResults(await searchManga(q));
     } catch (err) {
       setError(err.message);
     }
@@ -37,9 +37,9 @@ export default function SearchManga({ onAdded, onSelectTracked }) {
   }
 
   return (
-    <div className="p-6">
-      <form onSubmit={submit} className="flex gap-2 items-center">
-        <div className="search-shell flex-1">
+    <div className="search-section">
+      <div className="search-shell">
+        <form onSubmit={submit} className="search-form">
           <div className="search-field">
             <svg viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="11" cy="11" r="7" />
@@ -47,58 +47,70 @@ export default function SearchManga({ onAdded, onSelectTracked }) {
             </svg>
             <input
               type="text"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search manga…"
+              className="search-input"
+              value={value || ""}
+              onChange={(e) => onChange(e.target.value)}
+              placeholder="Search manga online or in your library…"
               autoComplete="off"
             />
           </div>
-        </div>
-        <button type="submit" className="rounded-lg bg-neutral-100 text-black text-sm font-medium px-4 py-2">
-          Search
-        </button>
-      </form>
+          <button type="submit" className="btn btn-primary">
+            Search
+          </button>
+        </form>
+      </div>
 
-      {error && <p className="text-red-400 text-xs mt-2">{error}</p>}
+      {error && <div className="error-banner" style={{ maxWidth: "600px", margin: "16px auto 0" }}>{error}</div>}
 
-      {results?.db_matches?.length > 0 && (
-        <div className="mt-4">
-          <p className="text-xs text-neutral-500 mb-2">Already in your list</p>
-          <ul className="space-y-1">
-            {results.db_matches.map((m) => (
-              <li key={m.id}>
-                <button onClick={() => onSelectTracked(m.id)} className="text-sm text-neutral-100 hover:underline">
-                  {m.title}
-                </button>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
+      {(results?.db_matches?.length > 0 || results?.web_results?.length > 0) && (
+        <div className="search-results-panel">
+          {results?.db_matches?.length > 0 && (
+            <div>
+              <div className="results-group-title">In Your Library</div>
+              <ul className="results-list">
+                {results.db_matches.map((m) => (
+                  <li key={m.id} className="result-item">
+                    <span className="result-title">{m.title}</span>
+                    <button
+                      onClick={() => onSelectTracked(m.id)}
+                      className="btn btn-secondary result-action-btn"
+                    >
+                      View
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
 
-      {results?.web_results?.length > 0 && (
-        <div className="mt-4">
-          <p className="text-xs text-neutral-500 mb-2">Results from weebcentral.com</p>
-          <ul className="space-y-2">
-            {results.web_results.map((r) => (
-              <li key={r.title} className="flex items-center justify-between rounded-lg bg-neutral-900/40 px-3 py-2">
-                <span className="text-sm text-neutral-100">{r.title}</span>
-                {r.already_tracked ? (
-                  <button onClick={() => onSelectTracked(r.tracked_id)} className="text-xs text-neutral-400">
-                    View
-                  </button>
-                ) : (
-                  <button
-                    onClick={() => handleAdd(r.title)}
-                    disabled={busyTitle === r.title}
-                    className="text-xs rounded-md bg-neutral-100 text-black px-2 py-1 disabled:opacity-50"
-                  >
-                    {busyTitle === r.title ? "Adding…" : "Add"}
-                  </button>
-                )}
-              </li>
-            ))}
-          </ul>
+          {results?.web_results?.length > 0 && (
+            <div>
+              <div className="results-group-title">WeebCentral Results</div>
+              <ul className="results-list">
+                {results.web_results.map((r) => (
+                  <li key={r.title} className="result-item">
+                    <span className="result-title">{r.title}</span>
+                    {r.already_tracked ? (
+                      <button
+                        onClick={() => onSelectTracked(r.tracked_id)}
+                        className="btn btn-secondary result-action-btn"
+                      >
+                        In Library
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => handleAdd(r.title)}
+                        disabled={busyTitle === r.title}
+                        className="btn btn-accent result-action-btn"
+                      >
+                        {busyTitle === r.title ? "Adding…" : "Add to Library"}
+                      </button>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
       )}
     </div>

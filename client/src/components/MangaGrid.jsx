@@ -3,8 +3,8 @@ import { useMyManga } from "../utils/useMyManga";
 import MangaCard from "./MangaCard";
 import SearchManga from "./SearchManga";
 
-export default function MangaLibrary({ onSelect }) {
-  const { manga, loading, error } = useMyManga();
+export default function MangaGrid({ onSelect }) {
+  const { manga, loading, error, reload } = useMyManga();
   const [query, setQuery] = useState("");
 
   const filtered = useMemo(() => {
@@ -13,29 +13,37 @@ export default function MangaLibrary({ onSelect }) {
     return manga.filter((m) => m.title.toLowerCase().includes(q));
   }, [manga, query]);
 
-  const handleAdded = (newManga) => {
-    console.log("Added new manga:", newManga);
-    setMangaList((prev) => [...prev, newManga]);
-  };
-
-  // Called when a user clicks a manga that is already tracked or in the DB
-  const handleSelectTracked = (id) => {
-    console.log("Selected manga ID:", id);
-    setSelectedMangaId(id);
+  const handleAdded = () => {
+    reload();
   };
 
   return (
     <div className="page">
+      <SearchManga
+        value={query}
+        onChange={setQuery}
+        onAdded={handleAdded}
+        onSelectTracked={onSelect}
+      />
 
-      <SearchManga value={query} onChange={setQuery} onAdded={handleAdded}
-        onSelectTracked={handleSelectTracked} />
+      <div className="grid-section-header">
+        <h2 className="grid-title">Library</h2>
+        <span className="grid-count">{manga.length} Manga</span>
+      </div>
 
-      {loading && <p className="status-text">Loading your manga…</p>}
-      {error && <p className="status-text">{error}</p>}
+      {loading && <p className="status-text">Loading library…</p>}
+      {error && <div className="error-banner">{error}</div>}
 
       {!loading && !error && filtered.length === 0 && (
         <div className="empty-state">
-          {manga.length === 0 ? "No manga tracked yet." : "No manga match that search."}
+          <div className="empty-state-title">
+            {manga.length === 0 ? "No manga in library" : "No matching manga found"}
+          </div>
+          <div className="empty-state-desc">
+            {manga.length === 0
+              ? "Use the search bar above to discover and add manga to your collection."
+              : "Try searching with a different keyword."}
+          </div>
         </div>
       )}
 
