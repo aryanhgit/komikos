@@ -14,7 +14,7 @@ from PIL import Image
 import requests
 from ua_generator import generate
 
-from enums import (
+from scripts.enums import (
     Genre,
     OfficialTranslation,
     Order,
