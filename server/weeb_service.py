@@ -44,3 +44,15 @@ def _fetch_full(query: str) -> dict:
 
 async def fetch_full(query: str) -> dict:
     return await asyncio.to_thread(_fetch_full, query)
+
+
+def _search_light(query: str, limit: int = 5) -> list[dict]:
+    results = weeb.search(query=query)[:limit]
+    return [
+        {"title": m.title, "cover_url": getattr(m, "cover_url", None)}
+        for m in results
+    ]
+
+
+async def search_light(query: str, limit: int = 5) -> list[dict]:
+    return await asyncio.to_thread(_search_light, query, limit)
