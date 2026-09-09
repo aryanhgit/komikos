@@ -80,6 +80,7 @@ def get_manga(manga_id: int):
     return record
 
 
+
 def update_manga(manga_id: int, data: dict):
     conn = get_conn()
     conn.execute(
@@ -103,6 +104,7 @@ def update_manga(manga_id: int, data: dict):
     conn.close()
 
 
+
 def search_by_title(query: str):
     conn = get_conn()
     rows = conn.execute(
@@ -113,11 +115,13 @@ def search_by_title(query: str):
     return [dict(r) for r in rows]
 
 
+
 def all_titles():
     conn = get_conn()
     rows = conn.execute("SELECT id, title FROM manga").fetchall()
     conn.close()
     return {r["title"].strip().lower(): r["id"] for r in rows}
+
 
 
 def update_chapter(manga_id: int, chapter_id: str, **fields):
@@ -136,6 +140,7 @@ def update_chapter(manga_id: int, chapter_id: str, **fields):
     conn.commit()
     conn.close()
     return chapters
+
 
 
 def delete_manga(manga_id: int):
