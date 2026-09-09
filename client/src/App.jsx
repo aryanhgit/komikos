@@ -1,25 +1,22 @@
-import { useState } from 'react'
-import './App.css'
+import { useState } from "react";
+import MangaGrid from "./components/MangaGrid";
+import MangaDetail from "./components/MangaDetail";
+import AddMangaForm from "./components/AddMangaForm";
 
-function App() {
-  const [count, setCount] = useState(0)
+export default function App() {
+  const [selected, setSelected] = useState(null);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   return (
-    <>
-      <section id="center">
-
-      </section>
-
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+    <div className="min-h-screen bg-black">
+      {selected ? (
+        <MangaDetail id={selected} onBack={() => setSelected(null)} />
+      ) : (
+        <>
+          <AddMangaForm onAdded={() => setRefreshKey((k) => k + 1)} />
+          <MangaGrid key={refreshKey} onSelect={setSelected} />
+        </>
+      )}
+    </div>
+  );
 }
-
-export default App
