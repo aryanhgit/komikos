@@ -2,7 +2,6 @@ import asyncio
 from pathlib import Path
 from typing import cast
 from scripts.weeb import Weeb
-from scripts.enums import DownloadType
 
 weeb = Weeb()
 
@@ -75,7 +74,7 @@ def _download_chapter(query: str, manga_title: str, chapter_id: str) -> Path:
     out_dir = DOWNLOAD_DIR / manga_title
     out_dir.mkdir(parents=True, exist_ok=True)
     before = set(out_dir.iterdir())
-    chapter.download(path=str(out_dir), download_type=cast(DownloadType, DownloadType.PDF),)    
+    chapter.download(path=str(out_dir),)    
     after = set(out_dir.iterdir())
     new_files = after - before
     if not new_files:
