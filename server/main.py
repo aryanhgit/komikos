@@ -4,9 +4,9 @@ from scripts.weeb import NetworkError, ParsingError
 
 import db
 import weeb_service
-from schemas import MangaSummary, MangaDetail, AddMangaRequest
+from schemas import MangaSummary, MangaDetail, AddMangaRequest, SearchResponse, SearchResultItem
 
-app = FastAPI(title="Komikos API")
+app = FastAPI(title="Weeb Central API")
 
 app.add_middleware(
     CORSMiddleware,
@@ -36,6 +36,26 @@ async def add_mine(req: AddMangaRequest):
         raise HTTPException(502, str(e))
     manga_id = db.insert_manga(data)
     return {**data, "id": manga_id}
+
+
+@app.get("/api/manga/search", response_model=SearchResponse)
+async def search(q: str):
+    db_matches = db.search_by_title(q)
+    tracked_titles = db.all_titles()
+    try:
+        web = await weeb_service.search_light(q)
+    except (NetworkError, ParsingError) as e:
+        raise HTTPException(502, str(e))
+    web_results = [
+        SearchResultItem(
+            title=r["title"],
+            cover_url=r["cover_url"],
+            already_tracked=r["title"].strip().lower() in tracked_titles,
+            tracked_id=tracked_titles.get(r["title"].strip().lower()),
+        )
+        for r in web
+    ]
+    return SearchResponse(db_matches=db_matches, web_results=web_results)
 
 
 @app.get("/api/manga/{manga_id}", response_model=MangaDetail)
