@@ -1,14 +1,32 @@
 import { useEffect, useState } from "react";
-import { getMangaDetail } from "../utils/api";
+import { getMangaDetail, downloadChapter } from "../utils/api";
 
 export default function MangaDetail({ id, onBack }) {
   const [detail, setDetail] = useState(null);
+  const [busyChapter, setBusyChapter] = useState(null);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     let active = true;
     getMangaDetail(id).then((d) => active && setDetail(d));
     return () => { active = false; };
   }, [id]);
+
+  async function handleDownload(chapterId) {
+    setBusyChapter(chapterId);
+    setError(null);
+    try {
+      const updated = await downloadChapter(id, chapterId);
+      setDetail((prev) => ({
+        ...prev,
+        chapters: prev.chapters.map((c) => (c.id === chapterId ? updated : c)),
+      }));
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setBusyChapter(null);
+    }
+  }
 
   if (!detail) return <p className="text-neutral-400 text-sm p-6">Loading…</p>;
 
@@ -24,11 +42,27 @@ export default function MangaDetail({ id, onBack }) {
           <p className="text-sm mt-3 text-neutral-300">{detail.description}</p>
         </div>
       </div>
+
+      {error && <p className="text-red-400 text-xs mt-4">{error}</p>}
+
       <ul className="mt-6 divide-y divide-neutral-800">
         {detail.chapters.map((c) => (
-          <li key={c.id} className="py-2 flex justify-between text-sm">
-            <span>{c.title}</span>
-            <span className="text-neutral-500">{c.date}</span>
+          <li key={c.id} className="py-2 flex items-center justify-between text-sm">
+            <span className={c.read ? "text-neutral-500" : "text-neutral-100"}>{c.title}</span>
+            <div className="flex items-center gap-3">
+              {c.read && c.download_url && (
+                <a href={c.download_url} target="_blank" rel="noreferrer" className="text-xs text-neutral-400 hover:underline">
+                  Open
+                </a>
+              )}
+              <button
+                onClick={() => handleDownload(c.id)}
+                disabled={busyChapter === c.id}
+                className="text-xs rounded-md bg-neutral-100 text-black px-2 py-1 disabled:opacity-50"
+              >
+                {busyChapter === c.id ? "Downloading…" : c.read ? "Re-download" : "Download"}
+              </button>
+            </div>
           </li>
         ))}
       </ul>
