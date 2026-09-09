@@ -25,3 +25,15 @@ class MangaDetail(MangaSummary):
 
 class AddMangaRequest(BaseModel):
     query: str
+
+
+class SearchResultItem(BaseModel):
+    title: str
+    cover_url: Optional[str] = None
+    already_tracked: bool = False
+    tracked_id: Optional[int] = None
+
+
+class SearchResponse(BaseModel):
+    db_matches: list[MangaSummary] = []
+    web_results: list[SearchResultItem] = []
