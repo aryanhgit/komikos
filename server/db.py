@@ -103,6 +103,23 @@ def update_manga(manga_id: int, data: dict):
     conn.close()
 
 
+def search_by_title(query: str):
+    conn = get_conn()
+    rows = conn.execute(
+        "SELECT id, title, cover_url, status, latest_chapter FROM manga WHERE title LIKE ? ORDER BY id DESC",
+        (f"%{query}%",),
+    ).fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+
+def all_titles():
+    conn = get_conn()
+    rows = conn.execute("SELECT id, title FROM manga").fetchall()
+    conn.close()
+    return {r["title"].strip().lower(): r["id"] for r in rows}
+
+
 def delete_manga(manga_id: int):
     conn = get_conn()
     conn.execute("DELETE FROM manga WHERE id = ?", (manga_id,))
