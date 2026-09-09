@@ -120,6 +120,24 @@ def all_titles():
     return {r["title"].strip().lower(): r["id"] for r in rows}
 
 
+def update_chapter(manga_id: int, chapter_id: str, **fields):
+    record = get_manga(manga_id)
+    if record is None:
+        return None
+    chapters = record["chapters"]
+    for c in chapters:
+        if c["id"] == chapter_id:
+            c.update(fields)
+            break
+    conn = get_conn()
+    conn.execute(
+        "UPDATE manga SET chapters=? WHERE id=?", (json.dumps(chapters), manga_id)
+    )
+    conn.commit()
+    conn.close()
+    return chapters
+
+
 def delete_manga(manga_id: int):
     conn = get_conn()
     conn.execute("DELETE FROM manga WHERE id = ?", (manga_id,))

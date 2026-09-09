@@ -66,17 +66,22 @@ async def search_light(query: str, limit: int = 5) -> list[dict]:
     return await asyncio.to_thread(_search_light, query, limit)
 
 
-def _download_chapter(query: str, manga_title: str, chapter_index: float) -> Path:
+def _download_chapter(query: str, manga_title: str, chapter_id: str) -> Path:
     manga = _find_best_match(query)
     chapters = manga.get_chapters()
-    chapter = next((c for c in chapters if c.index == chapter_index), None)
+    chapter = next((c for c in chapters if str(c.index) == chapter_id), None)
     if chapter is None:
-        raise ValueError(f"Chapter {chapter_index} not found")
+        raise ValueError(f"Chapter {chapter_id} not found")
     out_dir = DOWNLOAD_DIR / manga_title
     out_dir.mkdir(parents=True, exist_ok=True)
-    chapter.download(path=str(out_dir), download_type=cast(DownloadType, DownloadType.PDF),)
-    return out_dir / f"{chapter_index}.pdf"
+    before = set(out_dir.iterdir())
+    chapter.download(path=str(out_dir), download_type=cast(DownloadType, DownloadType.PDF),)    
+    after = set(out_dir.iterdir())
+    new_files = after - before
+    if not new_files:
+        raise ValueError(f"Download completed but no file was found for chapter {chapter_id}")
+    return max(new_files, key=lambda p: p.stat().st_mtime)
 
 
-async def download_chapter(query: str, manga_title: str, chapter_index: float) -> Path:
-    return await asyncio.to_thread(_download_chapter, query, manga_title, chapter_index)
+async def download_chapter(query: str, manga_title: str, chapter_id: str) -> Path:
+    return await asyncio.to_thread(_download_chapter, query, manga_title, chapter_id)

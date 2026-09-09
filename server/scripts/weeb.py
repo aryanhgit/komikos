@@ -1,5 +1,5 @@
 from __future__ import annotations
-from enums import (
+from scripts.enums import (
     Sort,
     Order,
     OfficialTranslation,

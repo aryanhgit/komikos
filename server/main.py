@@ -95,7 +95,7 @@ async def download_chapter(manga_id: int, chapter_id: str):
         raise HTTPException(404, "Manga not tracked")
     try:
         file_path = await weeb_service.download_chapter(
-            record["search_query"], record["title"], float(chapter_id)
+            record["search_query"], record["title"], chapter_id
         )
     except (ValueError, NetworkError, ParsingError) as e:
         raise HTTPException(502, str(e))

@@ -6,6 +6,8 @@ class ChapterOut(BaseModel):
     id: str
     title: str
     index: float
+    read: bool = False
+    download_url: Optional[str] = None
 
 
 class MangaSummary(BaseModel):
