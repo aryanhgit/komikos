@@ -46,3 +46,9 @@ export async function downloadChapter(mangaId, chapterId) {
   if (!res.ok) throw new Error("Failed to download chapter");
   return res.json();
 }
+
+export async function getChapterPages(mangaId, chapterId) {
+  const res = await fetch(`${BASE}/${mangaId}/chapters/${chapterId}/pages`);
+  if (!res.ok) throw new Error("Failed to load pages");
+  return res.json();
+}

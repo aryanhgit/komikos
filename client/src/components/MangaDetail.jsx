@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import { getMangaDetail, downloadChapter } from "../utils/api";
+import MangaReader from "./MangaReader";
 
 export default function MangaDetail({ id, onBack }) {
   const [detail, setDetail] = useState(null);
   const [busyChapter, setBusyChapter] = useState(null);
   const [error, setError] = useState(null);
+  const [readingChapter, setReadingChapter] = useState(null);
 
   useEffect(() => {
     let active = true;
@@ -30,6 +32,16 @@ export default function MangaDetail({ id, onBack }) {
 
   if (!detail) return <p className="text-neutral-400 text-sm p-6">Loading…</p>;
 
+  if (readingChapter) {
+    return (
+      <MangaReader
+        mangaId={id}
+        chapter={readingChapter}
+        onClose={() => setReadingChapter(null)}
+      />
+    );
+  }
+
   return (
     <div className="p-6 max-w-3xl mx-auto text-neutral-100">
       <button onClick={onBack} className="text-sm text-neutral-400 mb-4">← Back</button>
@@ -50,11 +62,9 @@ export default function MangaDetail({ id, onBack }) {
           <li key={c.id} className="py-2 flex items-center justify-between text-sm">
             <span className={c.read ? "text-neutral-500" : "text-neutral-100"}>{c.title}</span>
             <div className="flex items-center gap-3">
-              {c.read && c.download_url && (
-                <a href={c.download_url} target="_blank" rel="noreferrer" className="text-xs text-neutral-400 hover:underline">
-                  Open
-                </a>
-              )}
+              <button onClick={() => setReadingChapter(c)} className="text-xs text-neutral-400 hover:underline">
+                Read
+              </button>
               <button
                 onClick={() => handleDownload(c.id)}
                 disabled={busyChapter === c.id}
