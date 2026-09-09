@@ -1,7 +1,13 @@
 import asyncio
+from pathlib import Path
+from typing import cast
 from scripts.weeb import Weeb
+from scripts.enums import DownloadType
 
 weeb = Weeb()
+
+DOWNLOAD_DIR = Path(__file__).parent / "downloads"
+DOWNLOAD_DIR.mkdir(exist_ok=True)
 
 
 def _find_best_match(query: str):
@@ -17,6 +23,8 @@ def _serialize_chapters(chapters):
             "id": str(c.index),
             "title": getattr(c, "title", f"Chapter {c.index}"),
             "index": c.index,
+            "read": False,
+            "download_url": None,
         }
         for c in chapters
     ]
@@ -56,3 +64,19 @@ def _search_light(query: str, limit: int = 5) -> list[dict]:
 
 async def search_light(query: str, limit: int = 5) -> list[dict]:
     return await asyncio.to_thread(_search_light, query, limit)
+
+
+def _download_chapter(query: str, manga_title: str, chapter_index: float) -> Path:
+    manga = _find_best_match(query)
+    chapters = manga.get_chapters()
+    chapter = next((c for c in chapters if c.index == chapter_index), None)
+    if chapter is None:
+        raise ValueError(f"Chapter {chapter_index} not found")
+    out_dir = DOWNLOAD_DIR / manga_title
+    out_dir.mkdir(parents=True, exist_ok=True)
+    chapter.download(path=str(out_dir), download_type=cast(DownloadType, DownloadType.PDF),)
+    return out_dir / f"{chapter_index}.pdf"
+
+
+async def download_chapter(query: str, manga_title: str, chapter_index: float) -> Path:
+    return await asyncio.to_thread(_download_chapter, query, manga_title, chapter_index)
