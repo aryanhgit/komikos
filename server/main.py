@@ -104,6 +104,17 @@ async def download_chapter(manga_id: int, chapter_id: str):
     return next(c for c in chapters if c["id"] == chapter_id)
 
 
+@app.get("/api/manga/{manga_id}/chapters/{chapter_id}/pages", response_model=list[str])
+async def get_chapter_pages(manga_id: int, chapter_id: str):
+    record = db.get_manga(manga_id)
+    if record is None:
+        raise HTTPException(404, "Manga not tracked")
+    try:
+        return await weeb_service.get_pages(record["search_query"], chapter_id)
+    except (ValueError, NetworkError, ParsingError) as e:
+        raise HTTPException(502, str(e))
+
+
 @app.delete("/api/manga/mine/{manga_id}", status_code=204)
 def delete_one(manga_id: int):
     db.delete_manga(manga_id)

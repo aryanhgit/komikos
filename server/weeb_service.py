@@ -1,6 +1,5 @@
 import asyncio
 from pathlib import Path
-from typing import cast
 from scripts.weeb import Weeb
 
 weeb = Weeb()
@@ -84,3 +83,16 @@ def _download_chapter(query: str, manga_title: str, chapter_id: str) -> Path:
 
 async def download_chapter(query: str, manga_title: str, chapter_id: str) -> Path:
     return await asyncio.to_thread(_download_chapter, query, manga_title, chapter_id)
+
+
+def _get_pages(query: str, chapter_id: str) -> list[str]:
+    manga = _find_best_match(query)
+    chapters = manga.get_chapters()
+    chapter = next((c for c in chapters if str(c.index) == chapter_id), None)
+    if chapter is None:
+        raise ValueError(f"Chapter {chapter_id} not found")
+    return [p.url for p in chapter.get_pages()]
+
+
+async def get_pages(query: str, chapter_id: str) -> list[str]:
+    return await asyncio.to_thread(_get_pages, query, chapter_id)
