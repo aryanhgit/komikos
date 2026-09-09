@@ -32,3 +32,10 @@ export async function removeManga(id) {
   const res = await fetch(`${BASE}/mine/${id}`, { method: "DELETE" });
   if (!res.ok) throw new Error("Failed to remove manga");
 }
+
+export async function searchManga(q) {
+  const res = await fetch(`${BASE}/search?q=${encodeURIComponent(q)}`);
+  if (!res.ok) throw new Error("Search failed");
+  return res.json();
+}
+
