@@ -39,3 +39,10 @@ export async function searchManga(q) {
   return res.json();
 }
 
+export async function downloadChapter(mangaId, chapterId) {
+  const res = await fetch(`${BASE}/${mangaId}/chapters/${chapterId}/download`, {
+    method: "POST",
+  });
+  if (!res.ok) throw new Error("Failed to download chapter");
+  return res.json();
+}

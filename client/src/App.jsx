@@ -1,7 +1,7 @@
 import { useState } from "react";
 import MangaGrid from "./components/MangaGrid";
 import MangaDetail from "./components/MangaDetail";
-import AddMangaForm from "./components/AddMangaForm";
+import SearchManga from "./components/SearchManga";
 
 export default function App() {
   const [selected, setSelected] = useState(null);
@@ -13,7 +13,10 @@ export default function App() {
         <MangaDetail id={selected} onBack={() => setSelected(null)} />
       ) : (
         <>
-          <AddMangaForm onAdded={() => setRefreshKey((k) => k + 1)} />
+          <SearchManga
+            onAdded={() => setRefreshKey((k) => k + 1)}
+            onSelectTracked={setSelected}
+          />
           <MangaGrid key={refreshKey} onSelect={setSelected} />
         </>
       )}
