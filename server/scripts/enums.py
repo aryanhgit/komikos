@@ -1,5 +1,6 @@
 from enum import Enum
 
+
 class Sort(Enum):
     BEST_MATCH = "Best Match"
     ALPHABET = "Alphabet"
@@ -9,12 +10,14 @@ class Sort(Enum):
     def __str__(self):
         return self.value
 
+
 class Order(Enum):
     ASCENDING = "Ascending"
     DESCENDING = "Descending"
 
     def __str__(self):
         return self.value
+
 
 class OfficialTranslation(Enum):
     ANY = "Any"
@@ -24,6 +27,7 @@ class OfficialTranslation(Enum):
     def __str__(self):
         return self.value
 
+
 class SeriesStatus(Enum):
     ONGOING = "Ongoing"
     COMPLETE = "Complete"
@@ -32,6 +36,7 @@ class SeriesStatus(Enum):
 
     def __str__(self):
         return self.value
+
 
 class Genre(Enum):
     ACTION = "Action"
