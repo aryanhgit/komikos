@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { getMangaDetail, downloadChapter, removeManga } from "../utils/api";
 import MangaReader from "./MangaReader";
 
@@ -8,6 +8,7 @@ export default function MangaDetail({ id, onBack }) {
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState(null);
   const [readingChapter, setReadingChapter] = useState(null);
+  const [sortOrder, setSortOrder] = useState("asc");
 
   useEffect(() => {
     let active = true;
@@ -18,6 +19,12 @@ export default function MangaDetail({ id, onBack }) {
       active = false;
     };
   }, [id]);
+
+  const sortedChapters = useMemo(() => {
+    if (!detail?.chapters) return [];
+    const sorted = [...detail.chapters].sort((a, b) => a.index - b.index);
+    return sortOrder === "asc" ? sorted : sorted.reverse();
+  }, [detail?.chapters, sortOrder]);
 
   async function handleDownload(chapterId) {
     setBusyChapter(chapterId);
@@ -124,13 +131,22 @@ export default function MangaDetail({ id, onBack }) {
 
         <div className="detail-actions">
           <h3 className="section-subtitle">Chapters</h3>
+          {detail.chapters && detail.chapters.length > 1 && (
+            <button
+              onClick={() => setSortOrder((o) => (o === "asc" ? "desc" : "asc"))}
+              className="btn btn-secondary"
+              style={{ fontSize: "12px", padding: "6px 14px" }}
+            >
+              {sortOrder === "asc" ? "Oldest first" : "Newest first"}
+            </button>
+          )}
         </div>
 
-        {(!detail.chapters || detail.chapters.length === 0) ? (
+        {sortedChapters.length === 0 ? (
           <p className="status-text">No chapters available.</p>
         ) : (
           <ul className="chapter-list">
-            {detail.chapters.map((c) => (
+            {sortedChapters.map((c) => (
               <li key={c.id} className={`chapter-item ${c.read ? "read" : ""}`}>
                 <div className="chapter-title-wrap">
                   <span className="chapter-title">{c.title}</span>
