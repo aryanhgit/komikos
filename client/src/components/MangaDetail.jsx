@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
-import { getMangaDetail, downloadChapter } from "../utils/api";
+import { getMangaDetail, downloadChapter, removeManga } from "../utils/api";
 import MangaReader from "./MangaReader";
 
 export default function MangaDetail({ id, onBack }) {
   const [detail, setDetail] = useState(null);
   const [busyChapter, setBusyChapter] = useState(null);
+  const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState(null);
   const [readingChapter, setReadingChapter] = useState(null);
 
@@ -31,6 +32,19 @@ export default function MangaDetail({ id, onBack }) {
       setError(err.message);
     } finally {
       setBusyChapter(null);
+    }
+  }
+
+  async function handleDelete() {
+    if (!window.confirm(`Remove "${detail.title}" from your library?`)) return;
+    setDeleting(true);
+    setError(null);
+    try {
+      await removeManga(id);
+      onBack();
+    } catch (err) {
+      setError(err.message);
+      setDeleting(false);
     }
   }
 
@@ -66,9 +80,14 @@ export default function MangaDetail({ id, onBack }) {
   return (
     <div className="page">
       <div className="detail-view">
-        <button onClick={onBack} className="back-btn">
-          ← Back to Library
-        </button>
+        <div className="detail-topbar">
+          <button onClick={onBack} className="back-btn">
+            ← Back to Library
+          </button>
+          <button onClick={handleDelete} disabled={deleting} className="btn btn-danger">
+            {deleting ? "Removing…" : "Delete"}
+          </button>
+        </div>
 
         <div className="detail-hero">
           {detail.cover_url ? (
@@ -82,7 +101,7 @@ export default function MangaDetail({ id, onBack }) {
           <div className="detail-meta">
             <h1 className="detail-title">{detail.title}</h1>
             {detail.author && <div className="detail-author">By {detail.author}</div>}
-            
+
             <div className="detail-pills">
               {detail.status && (
                 <span className="pill">
