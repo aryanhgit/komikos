@@ -58,7 +58,7 @@ async def search(q: str):
         )
         for r in web
     ]
-    return SearchResponse(db_matches=db_matches, web_results=web_results)
+    return SearchResponse(db_matches=db_matches, web_results=web_results) # type: ignore
 
 
 @app.get("/api/manga/{manga_id}", response_model=MangaDetail)
@@ -101,7 +101,7 @@ async def download_chapter(manga_id: int, chapter_id: str):
         raise HTTPException(502, str(e))
     download_url = f"/downloads/{file_path.relative_to(weeb_service.DOWNLOAD_DIR)}"
     chapters = db.update_chapter(manga_id, chapter_id, read=True, download_url=download_url)
-    return next(c for c in chapters if c["id"] == chapter_id)
+    return next(c for c in chapters if c["id"] == chapter_id) # type: ignore
 
 
 @app.get("/api/manga/{manga_id}/chapters/{chapter_id}/pages", response_model=list[str])
